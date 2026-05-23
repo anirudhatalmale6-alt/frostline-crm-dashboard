@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en" data-sidebar="expanded">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrostLine CRM — Dashboard</title>
+
+    <!-- ============================================================
+         FONTS & ICONS (CDN)
+         Replace with local copies for production if needed.
+         ============================================================ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300..600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+    /* ==========================================================
+       1. CSS VARIABLES & RESET
+       ========================================================== */
+    :root {
+        /* --- Brand Palette ----------------------------------- */
+        --navy-950: #020617;
+        --navy-900: #0F172A;
+        --navy-800: #1E293B;
+        --navy-700: #334155;
+        --navy-600: #475569;
+
+        --slate-50:  #F8FAFC;
+        --slate-100: #F1F5F9;
+        --slate-200: #E2E8F0;
+        --slate-300: #CBD5E1;
+        --slate-400: #94A3B8;
+        --slate-500: #64748B;
+        --slate-600: #475569;
+
+        --white: #FFFFFF;
+
+        /* Primary accent */
+        --blue-400: #60A5FA;
+        --blue-500: #3B82F6;
+        --blue-600: #2563EB;
+
+        /* AI accent */
+        --teal-300: #5EEAD4;
+        --teal-400: #2DD4BF;
+        --teal-500: #14B8A6;
+        --teal-600: #0D9488;
+        --cyan-400: #22D3EE;
+
+        /* Semantic */
+        --emerald-500: #10B981;
+        --emerald-50:  #ECFDF5;
+        --amber-500:   #F59E0B;
+        --amber-50:    #FFFBEB;
+        --red-500:     #EF4444;
+        --red-50:      #FEF2F2;
+        --purple-500:  #8B5CF6;
+        --purple-50:   #F5F3FF;
+        --indigo-500:  #6366F1;
+        --rose-500:    #F43F5E;
+
+        /* Layout */
+        --sidebar-width: 260px;
+        --sidebar-collapsed: 72px;
+        --topbar-height: 64px;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --radius-xl: 20px;
+
+        /* Typography */
+        --font-display: 'Sora', sans-serif;
+        --font-body: 'DM Sans', sans-serif;
+
+        /* Shadows */
+        --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+        --shadow-md: 0 4px 12px rgba(15,23,42,0.07), 0 2px 4px rgba(15,23,42,0.04);
+        --shadow-lg: 0 10px 30px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.04);
+        --shadow-frost: 0 4px 20px rgba(6,182,212,0.12);
+
+        /* Transitions */
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--slate-50);
+        color: var(--navy-800);
+        line-height: 1.5;
+        overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    img { display: block; max-width: 100%; }
+    input, textarea { font-family: inherit; }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
+
+
+    /* ==========================================================
+       2. APP SHELL — SIDEBAR + MAIN
+       ========================================================== */
+    .app {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* --- Sidebar -------------------------------------------- */
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: var(--navy-900);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+        transition: width 0.35s var(--ease-out);
+        overflow: hidden;
+    }
+
+    /* Frosted overlay on sidebar for depth */
+    .sidebar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse at 20% 0%, rgba(6,182,212,0.07) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 100%, rgba(59,130,246,0.05) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .sidebar-header {
+        padding: 20px 20px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .sidebar-logo {
+        width: 36px; height: 36px;
+        background: linear-gradient(135deg, var(--teal-400), var(--blue-500));
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .sidebar-brand h1 {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--white);
+        letter-spacing: -0.02em;
+    }
+    .sidebar-brand span {
+        font-size: 0.7rem;
+        color: var(--slate-400);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 500;
+    }
+
+    /* --- Sidebar Navigation --------------------------------- */
+    .sidebar-nav {
+        flex: 1;
+        padding: 8px 12px;
+        position: relative;
+        z-index: 1;
+        overflow-y: auto;
+    }
+    .sidebar-nav-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--slate-500);
+        padding: 16px 12px 8px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: var(--radius-md);
+        color: var(--slate-400);
+        font-size: 0.9rem;
+        font-weight: 450;
+        transition: all 0.2s ease;
+        position: relative;
+        white-space: nowrap;
+        margin-bottom: 2px;
+    }
+    .nav-item i {
+        width: 20px;
+        text-align: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    .nav-item:hover {
+        color: var(--white);
+        background: rgba(255,255,255,0.06);
+    }
+    .nav-item.active {
+        color: var(--white);
+        background: rgba(59,130,246,0.15);
+    }
+    .nav-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 6px; bottom: 6px;
+        width: 3px;
+        background: var(--blue-500);
+        border-radius: 0 3px 3px 0;
+    }
+    .nav-badge {
+        margin-left: auto;
+        background: var(--teal-500);
+        color: var(--white);
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 10px;
+        line-height: 1.3;
+    }
+    .nav-badge.ai {
+        background: linear-gradient(135deg, var(--teal-400), var(--cyan-400));
+    }
+
+    /* --- Sidebar Footer (User) ------------------------------ */
+    .sidebar-footer {
+        padding: 16px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        position: relative;
+        z-index: 1;
+    }
+    .sidebar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: var(--radius-md);
+        transition: background 0.2s;
+    }
+    .sidebar-user:hover { background: rgba(255,255,255,0.06); }
+    .user-avatar {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.8rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    .user-info {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .user-info .name {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--white);
+    }
+    .user-info .role {
+        font-size: 0.72rem;
+        color: var(--slate-400);
+    }
+
+    /* --- Sidebar Collapse Toggle ---------------------------- */
+    .sidebar-toggle {
+        position: absolute;
+        top: 22px;
+        right: -13px;
+        width: 26px; height: 26px;
+        background: var(--white);
+        border: 1px solid var(--slate-200);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: var(--slate-500);
+        z-index: 101;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.3s var(--ease-out);
+        cursor: pointer;
+    }
+    .sidebar-toggle:hover {
+        color: var(--blue-500);
+        border-color: var(--blue-500);
+    }
+
+    /* Collapsed state */
+    [data-sidebar="collapsed"] .sidebar { width: var(--sidebar-collapsed); }
+    [data-sidebar="collapsed"] .main { margin-left: var(--sidebar-collapsed); }
+    [data-sidebar="collapsed"] .sidebar-brand,
+    [data-sidebar="collapsed"] .sidebar-nav-label,
+    [data-sidebar="collapsed"] .nav-item span,
+    [data-sidebar="collapsed"] .nav-badge,
+    [data-sidebar="collapsed"] .user-info { opacity: 0; width: 0; overflow: hidden; }
+    [data-sidebar="collapsed"] .sidebar-toggle { transform: rotate(180deg); }
+    [data-sidebar="collapsed"] .nav-item { justify-content: center; padding: 10px 0; }
+    [data-sidebar="collapsed"] .sidebar-user { justify-content: center; }
+
+
+    /* ==========================================================
+       3. MAIN CONTENT AREA
+       ========================================================== */
+    .main {
+        margin-left: var(--sidebar-width);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        transition: margin-left 0.35s var(--ease-out);
+    }
+
+    /* --- Top Bar -------------------------------------------- */
+    .topbar {
+        height: var(--topbar-height);
+        background: var(--white);
+        border-bottom: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        padding: 0 28px;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
+    .topbar-search {
+        flex: 1;
+        max-width: 420px;
+        position: relative;
+    }
+    .topbar-search i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate-400);
+        font-size: 0.85rem;
+    }
+    .topbar-search input {
+        width: 100%;
+        height: 38px;
+        border: 1px solid var(--slate-200);
+        border-radius: var(--radius-lg);
+        padding: 0 14px 0 40px;
+        font-size: 0.85rem;
+        color: var(--navy-800);
+        background: var(--slate-50);
+        outline: none;
+        transition: all 0.2s;
+    }
+    .topbar-search input::placeholder { color: var(--slate-400); }
+    .topbar-search input:focus {
+        border-color: var(--blue-500);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        background: var(--white);
+    }
+
+    .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+    }
+    .topbar-btn {
+        width: 38px; height: 38px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--slate-500);
+        font-size: 1rem;
+        transition: all 0.2s;
+        position: relative;
+    }
+    .topbar-btn:hover { background: var(--slate-100); color: var(--navy-800); }
+    .topbar-btn .badge {
+        position: absolute;
+        top: 6px; right: 6px;
+        width: 8px; height: 8px;
+        background: var(--red-500);
+        border-radius: 50%;
+        border: 2px solid var(--white);
+    }
+    .topbar-avatar {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin-left: 8px;
+        cursor: pointer;
+    }
+
+
+    /* ==========================================================
+       4. DASHBOARD CONTENT
+       ========================================================== */
+    .content {
+        padding: 24px 28px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Page header */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .page-header h2 {
+        font-family: var(--font-display);
+        font-size: 1.45rem;
+        font-weight: 600;
+        color: var(--navy-900);
+        letter-spacing: -0.02em;
+    }
+    .page-header p {
+        font-size: 0.85rem;
+        color: var(--slate-500);
+        margin-top: 2px;
+    }
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .btn-primary {
+        background: var(--blue-500);
+        color: var(--white);
+    }
+    .btn-primary:hover { background: var(--blue-600); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-outline {
+        border: 1px solid var(--slate-200);
+        color: var(--slate-600);
+        background: var(--white);
+    }
+    .btn-outline:hover { border-color: var(--slate-300); background: var(--slate-50); }
+
+
+    /* ==========================================================
+       5. STATS CARDS
+       ========================================================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+    }
+    .stat-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 20px 22px;
+        border: 1px solid var(--slate-200);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.25s var(--ease-out);
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+    }
+    .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+    .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--teal-500), var(--teal-300)); }
+    .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--emerald-500), #34D399); }
+    .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--amber-500), #FCD34D); }
+
+    .stat-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+    .stat-icon {
+        width: 38px; height: 38px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+    .stat-card:nth-child(1) .stat-icon { background: rgba(59,130,246,0.1); color: var(--blue-500); }
+    .stat-card:nth-child(2) .stat-icon { background: rgba(20,184,166,0.1); color: var(--teal-500); }
+    .stat-card:nth-child(3) .stat-icon { background: rgba(16,185,129,0.1); color: var(--emerald-500); }
+    .stat-card:nth-child(4) .stat-icon { background: rgba(245,158,11,0.1); color: var(--amber-500); }
+
+    .stat-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
+    .stat-trend.up { background: var(--emerald-50); color: var(--emerald-500); }
+    .stat-trend.down { background: var(--red-50); color: var(--red-500); }
+
+    .stat-value {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--navy-900);
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--slate-500);
+        margin-top: 4px;
+    }
+
+
+    /* ==========================================================
+       6. MIDDLE GRID — PIPELINE + AI/ACTIVITY
+       ========================================================== */
+    .middle-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* --- Section Card (shared) ------------------------------ */
+    .section-card {
+        background: var(--white);
+        border: 1px solid var(--slate-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--slate-100);
+    }
+    .section-header h3 {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--navy-900);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .section-header h3 i { font-size: 0.9rem; color: var(--slate-400); }
+
+
+    /* ==========================================================
+       7. LEAD PIPELINE (KANBAN)
+       ========================================================== */
+    .pipeline-body {
+        padding: 18px 22px;
+        overflow-x: auto;
+    }
+    .pipeline-columns {
+        display: flex;
+        gap: 14px;
+        min-width: max-content;
+    }
+    .pipeline-col {
+        min-width: 195px;
+        width: 195px;
+        flex-shrink: 0;
+    }
+    .pipeline-col-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--slate-200);
+    }
+    .pipeline-col-header .col-title {
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--slate-600);
+    }
+    .pipeline-col-header .col-count {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: var(--slate-100);
+        color: var(--slate-500);
+    }
+
+    /* Stage-specific top borders */
+    .pipeline-col[data-stage="new"] .pipeline-col-header { border-color: var(--blue-500); }
+    .pipeline-col[data-stage="contacted"] .pipeline-col-header { border-color: var(--cyan-400); }
+    .pipeline-col[data-stage="qualified"] .pipeline-col-header { border-color: var(--teal-500); }
+    .pipeline-col[data-stage="proposal"] .pipeline-col-header { border-color: var(--amber-500); }
+    .pipeline-col[data-stage="negotiation"] .pipeline-col-header { border-color: var(--purple-500); }
+    .pipeline-col[data-stage="won"] .pipeline-col-header { border-color: var(--emerald-500); }
+
+    .pipeline-col-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* --- Lead Card ------------------------------------------ */
+    .lead-card {
+        background: var(--white);
+        border: 1px solid var(--slate-200);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        transition: all 0.2s var(--ease-out);
+        cursor: pointer;
+    }
+    .lead-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--slate-300);
+    }
+    .lead-card .lead-company {
+        font-weight: 600;
+        font-size: 0.82rem;
+        color: var(--navy-900);
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+    .lead-card .lead-value {
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--blue-600);
+        margin-bottom: 10px;
+    }
+    .lead-card .lead-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        color: var(--slate-400);
+    }
+    .lead-card .lead-rep {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .lead-rep-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--blue-500);
+    }
+    .lead-card .lead-days {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+
+    /* ==========================================================
+       8. RIGHT COLUMN — AI + ACTIVITY
+       ========================================================== */
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* --- AI Suggestions ------------------------------------- */
+    .ai-section {
+        border: 1px solid rgba(6,182,212,0.2);
+        background: linear-gradient(135deg, rgba(6,182,212,0.03), rgba(59,130,246,0.02));
+    }
+    .ai-section .section-header {
+        border-bottom-color: rgba(6,182,212,0.12);
+    }
+    .ai-section .section-header h3 {
+        color: var(--teal-600);
+    }
+    .ai-section .section-header h3 i {
+        color: var(--teal-500);
+    }
+    .ai-chip {
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, var(--teal-400), var(--cyan-400));
+        color: var(--white);
+    }
+
+    .ai-suggestions-list {
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .ai-suggestion {
+        padding: 14px;
+        background: var(--white);
+        border: 1px solid var(--slate-200);
+        border-radius: var(--radius-md);
+        transition: all 0.2s;
+        position: relative;
+    }
+    .ai-suggestion:hover {
+        border-color: rgba(6,182,212,0.3);
+        box-shadow: var(--shadow-frost);
+    }
+    .ai-suggestion-text {
+        font-size: 0.82rem;
+        color: var(--navy-800);
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+    .ai-suggestion-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .confidence-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .confidence-bar span {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--teal-600);
+    }
+    .confidence-track {
+        width: 60px;
+        height: 4px;
+        background: var(--slate-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--teal-400), var(--cyan-400));
+        border-radius: 4px;
+        transition: width 0.8s var(--ease-out);
+    }
+    .ai-action-btn {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--teal-600);
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(6,182,212,0.2);
+        transition: all 0.2s;
+    }
+    .ai-action-btn:hover {
+        background: rgba(6,182,212,0.08);
+        border-color: var(--teal-400);
+    }
+
+    /* --- Activity Feed -------------------------------------- */
+    .activity-list {
+        padding: 16px 18px;
+    }
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        padding: 10px 0;
+        position: relative;
+    }
+    .activity-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 36px;
+        bottom: -2px;
+        width: 1px;
+        background: var(--slate-200);
+    }
+    .activity-dot {
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+    .activity-dot.blue { background: rgba(59,130,246,0.1); color: var(--blue-500); }
+    .activity-dot.teal { background: rgba(20,184,166,0.1); color: var(--teal-500); }
+    .activity-dot.green { background: rgba(16,185,129,0.1); color: var(--emerald-500); }
+    .activity-dot.amber { background: rgba(245,158,11,0.1); color: var(--amber-500); }
+    .activity-dot.purple { background: rgba(139,92,246,0.1); color: var(--purple-500); }
+
+    .activity-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .activity-content p {
+        font-size: 0.8rem;
+        color: var(--navy-800);
+        line-height: 1.4;
+    }
+    .activity-content p strong { font-weight: 600; }
+    .activity-time {
+        font-size: 0.7rem;
+        color: var(--slate-400);
+        margin-top: 2px;
+    }
+
+
+    /* ==========================================================
+       9. CUSTOMER TABLE
+       ========================================================== */
+    .customers-section .section-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .table-filters {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .filter-search {
+        position: relative;
+    }
+    .filter-search i {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate-400);
+        font-size: 0.75rem;
+    }
+    .filter-search input {
+        height: 32px;
+        border: 1px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        padding: 0 10px 0 30px;
+        font-size: 0.8rem;
+        width: 200px;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .filter-search input:focus {
+        border-color: var(--blue-500);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+    }
+    .filter-btn {
+        height: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem;
+        color: var(--slate-600);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--slate-300); background: var(--slate-50); }
+
+    .customer-table-wrap {
+        overflow-x: auto;
+    }
+    .customer-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .customer-table th {
+        text-align: left;
+        padding: 12px 18px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--slate-500);
+        background: var(--slate-50);
+        border-bottom: 1px solid var(--slate-200);
+        white-space: nowrap;
+    }
+    .customer-table td {
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--slate-100);
+        white-space: nowrap;
+    }
+    .customer-table tbody tr {
+        transition: background 0.15s;
+    }
+    .customer-table tbody tr:hover {
+        background: rgba(59,130,246,0.02);
+    }
+
+    .customer-company {
+        font-weight: 600;
+        color: var(--navy-900);
+    }
+    .customer-contact {
+        color: var(--slate-600);
+    }
+    .customer-email {
+        color: var(--blue-500);
+    }
+    .customer-phone {
+        color: var(--slate-500);
+        font-size: 0.82rem;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+    .status-badge::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+    }
+    .status-badge.active { background: var(--emerald-50); color: var(--emerald-500); }
+    .status-badge.active::before { background: var(--emerald-500); }
+    .status-badge.pending { background: var(--amber-50); color: var(--amber-500); }
+    .status-badge.pending::before { background: var(--amber-500); }
+    .status-badge.inactive { background: var(--red-50); color: var(--red-500); }
+    .status-badge.inactive::before { background: var(--red-500); }
+
+    /* Action buttons */
+    .action-btns {
+        display: flex;
+        gap: 4px;
+    }
+    .action-btn {
+        width: 30px; height: 30px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        color: var(--slate-400);
+        transition: all 0.2s;
+    }
+    .action-btn:hover { background: var(--slate-100); color: var(--blue-500); }
+
+
+    /* ==========================================================
+       10. CHATBOT WIDGET
+       ========================================================== */
+    .chatbot-trigger {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 54px; height: 54px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--teal-500), var(--cyan-400));
+        color: var(--white);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 24px rgba(6,182,212,0.35);
+        z-index: 200;
+        transition: all 0.3s var(--ease-out);
+        cursor: pointer;
+    }
+    .chatbot-trigger:hover {
+        transform: scale(1.08);
+        box-shadow: 0 8px 32px rgba(6,182,212,0.45);
+    }
+    .chatbot-trigger .pulse-ring {
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid var(--teal-400);
+        animation: pulse-ring 2.5s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+        0% { transform: scale(1); opacity: 0.6; }
+        100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .chatbot-window {
+        position: fixed;
+        bottom: 90px;
+        right: 24px;
+        width: 360px;
+        height: 460px;
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg), 0 0 0 1px var(--slate-200);
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: scale(0.9) translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.35s var(--ease-out);
+    }
+    .chatbot-window.open {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .chatbot-header {
+        padding: 16px 20px;
+        background: linear-gradient(135deg, var(--navy-900), var(--navy-800));
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .chatbot-header-icon {
+        width: 34px; height: 34px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, var(--teal-400), var(--cyan-400));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.9rem;
+    }
+    .chatbot-header-text h4 {
+        font-family: var(--font-display);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--white);
+    }
+    .chatbot-header-text span {
+        font-size: 0.7rem;
+        color: var(--teal-300);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .chatbot-header-text span::before {
+        content: '';
+        width: 6px; height: 6px;
+        background: var(--teal-400);
+        border-radius: 50%;
+        animation: blink 2s ease infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    .chatbot-close {
+        margin-left: auto;
+        color: var(--slate-400);
+        font-size: 0.9rem;
+        padding: 4px;
+        transition: color 0.2s;
+    }
+    .chatbot-close:hover { color: var(--white); }
+
+    .chatbot-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .chat-msg {
+        max-width: 85%;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-size: 0.82rem;
+        line-height: 1.5;
+    }
+    .chat-msg.bot {
+        background: var(--slate-100);
+        color: var(--navy-800);
+        border-bottom-left-radius: 4px;
+        align-self: flex-start;
+    }
+    .chat-msg.user {
+        background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+        color: var(--white);
+        border-bottom-right-radius: 4px;
+        align-self: flex-end;
+    }
+
+    .chatbot-input-area {
+        padding: 14px 16px;
+        border-top: 1px solid var(--slate-200);
+        display: flex;
+        gap: 8px;
+    }
+    .chatbot-input-area input {
+        flex: 1;
+        height: 38px;
+        border: 1px solid var(--slate-200);
+        border-radius: 20px;
+        padding: 0 16px;
+        font-size: 0.82rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .chatbot-input-area input:focus { border-color: var(--teal-400); }
+    .chatbot-send {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--teal-500), var(--cyan-400));
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transition: transform 0.2s;
+    }
+    .chatbot-send:hover { transform: scale(1.06); }
+
+
+    /* ==========================================================
+       11. ANIMATIONS
+       ========================================================== */
+    @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+        animation: fade-in-up 0.5s var(--ease-out) forwards;
+        opacity: 0;
+    }
+    .delay-1 { animation-delay: 0.06s; }
+    .delay-2 { animation-delay: 0.12s; }
+    .delay-3 { animation-delay: 0.18s; }
+    .delay-4 { animation-delay: 0.24s; }
+    .delay-5 { animation-delay: 0.30s; }
+    .delay-6 { animation-delay: 0.36s; }
+    .delay-7 { animation-delay: 0.42s; }
+
+
+    /* ==========================================================
+       12. RESPONSIVE
+       ========================================================== */
+    @media (max-width: 1200px) {
+        .middle-grid {
+            grid-template-columns: 1fr;
+        }
+        .right-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .right-column {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: var(--sidebar-width);
+        }
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        .main {
+            margin-left: 0;
+        }
+        .sidebar-toggle { display: none; }
+        .mobile-menu-btn { display: flex !important; }
+        .content { padding: 18px 16px 40px; }
+        .topbar { padding: 0 16px; }
+        .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .chatbot-window {
+            right: 10px;
+            left: 10px;
+            width: auto;
+            bottom: 80px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .stats-row { grid-template-columns: 1fr; }
+        .table-filters { flex-wrap: wrap; }
+        .filter-search input { width: 100%; }
+    }
+
+    .mobile-menu-btn {
+        display: none;
+        width: 38px; height: 38px;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-md);
+        color: var(--slate-500);
+        font-size: 1.1rem;
+    }
+    .mobile-menu-btn:hover { background: var(--slate-100); }
+
+    /* Mobile overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15,23,42,0.5);
+        z-index: 99;
+    }
+    .sidebar-overlay.active { display: block; }
+    </style>
+</head>
+
+<body>
+<div class="app">
+
+    <!-- ============================================================
+         SIDEBAR NAVIGATION
+         ============================================================ -->
+    <aside class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fa-regular fa-snowflake"></i>
+            </div>
+            <div class="sidebar-brand">
+                <h1>FrostLine</h1>
+                <span>CRM Platform</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-label">Main</div>
+            <a href="#" class="nav-item active">
+                <i class="fa-solid fa-grid-2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                <span>Customers</span>
+                <span class="nav-badge">847</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-bullseye"></i>
+                <span>Leads</span>
+                <span class="nav-badge">34</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Bookings</span>
+            </a>
+
+            <div class="sidebar-nav-label">Intelligence</div>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI Insights</span>
+                <span class="nav-badge ai">3</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-chart-mixed"></i>
+                <span>Analytics</span>
+            </a>
+
+            <div class="sidebar-nav-label">System</div>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">JC</div>
+                <div class="user-info">
+                    <div class="name">James Cole</div>
+                    <div class="role">Sales Manager</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+    <main class="main">
+
+        <!-- ---- Top Bar ---- -->
+        <header class="topbar">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="topbar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search customers, leads, bookings...">
+            </div>
+            <div class="topbar-right">
+                <button class="topbar-btn" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="badge"></span>
+                </button>
+                <button class="topbar-btn" title="Messages">
+                    <i class="fa-regular fa-envelope"></i>
+                </button>
+                <button class="topbar-btn" title="Help">
+                    <i class="fa-regular fa-circle-question"></i>
+                </button>
+                <div class="topbar-avatar" title="James Cole">JC</div>
+            </div>
+        </header>
+
+        <!-- ---- Dashboard Content ---- -->
+        <div class="content">
+
+            <!-- Page Header -->
+            <div class="page-header animate-in">
+                <div>
+                    <h2>Dashboard</h2>
+                    <p>Welcome back, James. Here's your pipeline overview.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline">
+                        <i class="fa-solid fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i> New Lead
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 STATS CARDS
+                 Wire to real data: replace innerText of .stat-value
+                 ======================================================== -->
+            <section class="stats-row">
+                <div class="stat-card animate-in delay-1">
+                    <div class="stat-card-header">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <span class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 12%</span>
+                    </div>
+                    <div class="stat-value" data-count="847">0</div>
+                    <div class="stat-label">Total Customers</div>
+                </div>
+                <div class="stat-card animate-in delay-2">
+                    <div class="stat-card-header">
+                        <div class="stat-icon"><i class="fa-solid fa-bullseye"></i></div>
+                        <span class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 8%</span>
+                    </div>
+                    <div class="stat-value" data-count="34">0</div>
+                    <div class="stat-label">Active Leads</div>
+                </div>
+                <div class="stat-card animate-in delay-3">
+                    <div class="stat-card-header">
+                        <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <span class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 5%</span>
+                    </div>
+                    <div class="stat-value" data-count="68" data-suffix="%">0%</div>
+                    <div class="stat-label">Conversion Rate</div>
+                </div>
+                <div class="stat-card animate-in delay-4">
+                    <div class="stat-card-header">
+                        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+                        <span class="stat-trend down"><i class="fa-solid fa-arrow-down"></i> 18%</span>
+                    </div>
+                    <div class="stat-value" data-count="2.4" data-suffix="h" data-decimals="1">0h</div>
+                    <div class="stat-label">Avg Response Time</div>
+                </div>
+            </section>
+
+
+            <!-- ========================================================
+                 MIDDLE GRID — Pipeline + AI/Activity
+                 ======================================================== -->
+            <div class="middle-grid">
+
+                <!-- ---- LEAD PIPELINE (Kanban) ---- -->
+                <!-- Wire to real data: dynamically render .lead-card elements per stage -->
+                <section class="section-card animate-in delay-4">
+                    <div class="section-header">
+                        <h3><i class="fa-solid fa-arrows-split-up-and-left"></i> Lead Pipeline</h3>
+                        <button class="btn btn-outline" style="padding:6px 12px; font-size:0.78rem;">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                    </div>
+                    <div class="pipeline-body">
+                        <div class="pipeline-columns">
+
+                            <!-- NEW LEAD -->
+                            <div class="pipeline-col" data-stage="new">
+                                <div class="pipeline-col-header">
+                                    <span class="col-title">New Lead</span>
+                                    <span class="col-count">2</span>
+                                </div>
+                                <div class="pipeline-col-cards">
+                                    <div class="lead-card">
+                                        <div class="lead-company">Marriott UK Hotels</div>
+                                        <div class="lead-value">&pound;45,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot"></span> Tom R.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 2d</span>
+                                        </div>
+                                    </div>
+                                    <div class="lead-card">
+                                        <div class="lead-company">Wagamama Group</div>
+                                        <div class="lead-value">&pound;18,500</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--purple-500)"></span> Sarah M.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 5d</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CONTACTED -->
+                            <div class="pipeline-col" data-stage="contacted">
+                                <div class="pipeline-col-header">
+                                    <span class="col-title">Contacted</span>
+                                    <span class="col-count">2</span>
+                                </div>
+                                <div class="pipeline-col-cards">
+                                    <div class="lead-card">
+                                        <div class="lead-company">Wetherspoons Central</div>
+                                        <div class="lead-value">&pound;32,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot"></span> Tom R.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 3d</span>
+                                        </div>
+                                    </div>
+                                    <div class="lead-card">
+                                        <div class="lead-company">Deliveroo Kitchens</div>
+                                        <div class="lead-value">&pound;22,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--emerald-500)"></span> Emily R.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 7d</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- QUALIFIED -->
+                            <div class="pipeline-col" data-stage="qualified">
+                                <div class="pipeline-col-header">
+                                    <span class="col-title">Qualified</span>
+                                    <span class="col-count">2</span>
+                                </div>
+                                <div class="pipeline-col-cards">
+                                    <div class="lead-card">
+                                        <div class="lead-company">John Lewis Partnership</div>
+                                        <div class="lead-value">&pound;67,500</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--amber-500)"></span> James C.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 4d</span>
+                                        </div>
+                                    </div>
+                                    <div class="lead-card">
+                                        <div class="lead-company">Costa Coffee UK</div>
+                                        <div class="lead-value">&pound;41,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--purple-500)"></span> Sarah M.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 6d</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PROPOSAL SENT -->
+                            <div class="pipeline-col" data-stage="proposal">
+                                <div class="pipeline-col-header">
+                                    <span class="col-title">Proposal</span>
+                                    <span class="col-count">2</span>
+                                </div>
+                                <div class="pipeline-col-cards">
+                                    <div class="lead-card">
+                                        <div class="lead-company">Sainsbury's Regional</div>
+                                        <div class="lead-value">&pound;89,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--amber-500)"></span> James C.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 8d</span>
+                                        </div>
+                                    </div>
+                                    <div class="lead-card">
+                                        <div class="lead-company">Holiday Inn Express</div>
+                                        <div class="lead-value">&pound;28,500</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot"></span> Tom R.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 3d</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- NEGOTIATION -->
+                            <div class="pipeline-col" data-stage="negotiation">
+                                <div class="pipeline-col-header">
+                                    <span class="col-title">Negotiation</span>
+                                    <span class="col-count">1</span>
+                                </div>
+                                <div class="pipeline-col-cards">
+                                    <div class="lead-card">
+                                        <div class="lead-company">Premier Inn Group</div>
+                                        <div class="lead-value">&pound;156,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--emerald-500)"></span> Emily R.</span>
+                                            <span class="lead-days"><i class="fa-regular fa-clock"></i> 12d</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- WON -->
+                            <div class="pipeline-col" data-stage="won">
+                                <div class="pipeline-col-header">
+                                    <span class="col-title">Won</span>
+                                    <span class="col-count">1</span>
+                                </div>
+                                <div class="pipeline-col-cards">
+                                    <div class="lead-card" style="border-left: 3px solid var(--emerald-500);">
+                                        <div class="lead-company">Hilton Bankside</div>
+                                        <div class="lead-value">&pound;72,000</div>
+                                        <div class="lead-meta">
+                                            <span class="lead-rep"><span class="lead-rep-dot" style="background:var(--amber-500)"></span> James C.</span>
+                                            <span class="lead-days"><i class="fa-solid fa-check"></i> Closed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ---- RIGHT COLUMN: AI + Activity ---- -->
+                <div class="right-column">
+
+                    <!-- AI SUGGESTIONS -->
+                    <!-- Wire to real data: populate from your AI/ML recommendation engine -->
+                    <section class="section-card ai-section animate-in delay-5">
+                        <div class="section-header">
+                            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Suggestions</h3>
+                            <span class="ai-chip">Live</span>
+                        </div>
+                        <div class="ai-suggestions-list">
+
+                            <div class="ai-suggestion">
+                                <div class="ai-suggestion-text">
+                                    <strong>Follow up with Wetherspoons Central</strong> &mdash; engagement dropped 40% this week. Consider a check-in call.
+                                </div>
+                                <div class="ai-suggestion-footer">
+                                    <div class="confidence-bar">
+                                        <div class="confidence-track">
+                                            <div class="confidence-fill" style="width:87%"></div>
+                                        </div>
+                                        <span>87%</span>
+                                    </div>
+                                    <button class="ai-action-btn">Act</button>
+                                </div>
+                            </div>
+
+                            <div class="ai-suggestion">
+                                <div class="ai-suggestion-text">
+                                    <strong>John Lewis</strong> likely to close within 5 days based on similar conversion patterns.
+                                </div>
+                                <div class="ai-suggestion-footer">
+                                    <div class="confidence-bar">
+                                        <div class="confidence-track">
+                                            <div class="confidence-fill" style="width:92%"></div>
+                                        </div>
+                                        <span>92%</span>
+                                    </div>
+                                    <button class="ai-action-btn">Act</button>
+                                </div>
+                            </div>
+
+                            <div class="ai-suggestion">
+                                <div class="ai-suggestion-text">
+                                    <strong>Premier Inn Group</strong> may need a revised proposal &mdash; negotiation exceeds avg stage duration by 4 days.
+                                </div>
+                                <div class="ai-suggestion-footer">
+                                    <div class="confidence-bar">
+                                        <div class="confidence-track">
+                                            <div class="confidence-fill" style="width:78%"></div>
+                                        </div>
+                                        <span>78%</span>
+                                    </div>
+                                    <button class="ai-action-btn">Act</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <!-- ACTIVITY FEED -->
+                    <!-- Wire to real data: stream from your event/activity log API -->
+                    <section class="section-card animate-in delay-6">
+                        <div class="section-header">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h3>
+                            <button class="btn btn-outline" style="padding:5px 10px; font-size:0.72rem;">View All</button>
+                        </div>
+                        <div class="activity-list">
+
+                            <div class="activity-item">
+                                <div class="activity-dot purple"><i class="fa-solid fa-arrows-rotate"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Emily Ross</strong> updated Premier Inn Group status</p>
+                                    <div class="activity-time">2 min ago</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot blue"><i class="fa-solid fa-plus"></i></div>
+                                <div class="activity-content">
+                                    <p>New enquiry from <strong>Marriott UK Hotels</strong></p>
+                                    <div class="activity-time">15 min ago</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot amber"><i class="fa-solid fa-paper-plane"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Tom Reed</strong> sent proposal to Holiday Inn Express</p>
+                                    <div class="activity-time">1 hr ago</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot teal"><i class="fa-solid fa-circle-check"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Sarah Mills</strong> qualified Costa Coffee UK lead</p>
+                                    <div class="activity-time">2 hr ago</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot green"><i class="fa-solid fa-trophy"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>James Cole</strong> closed Hilton Bankside &mdash; Won</p>
+                                    <div class="activity-time">3 hr ago</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot teal"><i class="fa-solid fa-robot"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>AI</strong> detected engagement drop for Wetherspoons</p>
+                                    <div class="activity-time">4 hr ago</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 CUSTOMER INFORMATION TABLE
+                 Wire to real data: fetch from your customer API and
+                 render rows dynamically. Each <tr> follows this pattern.
+                 ======================================================== -->
+            <section class="section-card animate-in delay-7">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-address-book"></i> Customer Directory</h3>
+                    <div class="table-filters">
+                        <div class="filter-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Search customers..." id="customerSearch">
+                        </div>
+                        <button class="filter-btn">
+                            <i class="fa-solid fa-filter"></i> Status
+                        </button>
+                        <button class="filter-btn">
+                            <i class="fa-solid fa-arrow-down-short-wide"></i> Sort
+                        </button>
+                    </div>
+                </div>
+                <div class="customer-table-wrap">
+                    <table class="customer-table" id="customerTable">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Last Interaction</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="customer-company">The Dorchester Hotel</td>
+                                <td class="customer-contact">James Whitfield</td>
+                                <td class="customer-email">j.whitfield@dorchester.com</td>
+                                <td class="customer-phone">+44 20 7629 8888</td>
+                                <td>22 May 2026</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">Pret A Manger HQ</td>
+                                <td class="customer-contact">Sarah Chen</td>
+                                <td class="customer-email">s.chen@pret.com</td>
+                                <td class="customer-phone">+44 20 7932 5200</td>
+                                <td>21 May 2026</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">WeWork Moorgate</td>
+                                <td class="customer-contact">David Thompson</td>
+                                <td class="customer-email">d.thompson@wework.com</td>
+                                <td class="customer-phone">+44 20 3695 7895</td>
+                                <td>19 May 2026</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">Travelodge Central</td>
+                                <td class="customer-contact">Emma Richardson</td>
+                                <td class="customer-email">e.richardson@travelodge.co.uk</td>
+                                <td class="customer-phone">+44 871 984 8484</td>
+                                <td>20 May 2026</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">Harrods Food Hall</td>
+                                <td class="customer-contact">Oliver Bennett</td>
+                                <td class="customer-email">o.bennett@harrods.com</td>
+                                <td class="customer-phone">+44 20 7730 1234</td>
+                                <td>14 May 2026</td>
+                                <td><span class="status-badge inactive">Inactive</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">NHS Birmingham Trust</td>
+                                <td class="customer-contact">Dr. Priya Patel</td>
+                                <td class="customer-email">p.patel@nhs.net</td>
+                                <td class="customer-phone">+44 121 424 2000</td>
+                                <td>18 May 2026</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">Selfridges &amp; Co</td>
+                                <td class="customer-contact">Charlotte Price</td>
+                                <td class="customer-email">c.price@selfridges.com</td>
+                                <td class="customer-phone">+44 20 7318 3636</td>
+                                <td>17 May 2026</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-company">Claridge's London</td>
+                                <td class="customer-contact">Robert Ashworth</td>
+                                <td class="customer-email">r.ashworth@claridges.co.uk</td>
+                                <td class="customer-phone">+44 20 7629 8860</td>
+                                <td>15 May 2026</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn" title="Contact"><i class="fa-solid fa-envelope"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+
+<!-- ============================================================
+     CHATBOT WIDGET
+     Wire to real data: connect to your chatbot/LLM API.
+     The messages area accepts dynamic .chat-msg elements.
+     ============================================================ -->
+<button class="chatbot-trigger" id="chatbotTrigger" title="FrostLine AI Assistant">
+    <i class="fa-solid fa-robot"></i>
+    <span class="pulse-ring"></span>
+</button>
+
+<div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+        <div class="chatbot-header-icon"><i class="fa-solid fa-snowflake"></i></div>
+        <div class="chatbot-header-text">
+            <h4>FrostLine AI</h4>
+            <span>Online &mdash; ready to help</span>
+        </div>
+        <button class="chatbot-close" id="chatbotClose"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="chatbot-messages">
+        <div class="chat-msg bot">
+            Hello James! I'm your FrostLine AI assistant. I can help you find customer info, check lead status, or suggest next actions. What can I help with?
+        </div>
+        <div class="chat-msg user">
+            What's the latest on the Premier Inn negotiation?
+        </div>
+        <div class="chat-msg bot">
+            Premier Inn Group (&pound;156k) has been in negotiation for 12 days &mdash; that's 4 days above your team's average. I'd recommend scheduling a call with Emily Ross to discuss a revised proposal. Want me to draft a follow-up email?
+        </div>
+    </div>
+    <div class="chatbot-input-area">
+        <input type="text" placeholder="Ask FrostLine AI..." id="chatbotInput">
+        <button class="chatbot-send"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT — Interactions & Animated Counters
+     ============================================================ -->
+<script>
+(function() {
+    'use strict';
+
+    /* ----------------------------------------------------------
+       Sidebar Toggle (desktop collapse / mobile open)
+       ---------------------------------------------------------- */
+    const html = document.documentElement;
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            const current = html.getAttribute('data-sidebar');
+            html.setAttribute('data-sidebar', current === 'expanded' ? 'collapsed' : 'expanded');
+        });
+    }
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.add('mobile-open');
+            sidebarOverlay.classList.add('active');
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('mobile-open');
+            sidebarOverlay.classList.remove('active');
+        });
+    }
+
+
+    /* ----------------------------------------------------------
+       Animated Counters
+       Counts up from 0 to the target value on page load.
+       ---------------------------------------------------------- */
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-value[data-count]');
+        counters.forEach(function(counter) {
+            const target = parseFloat(counter.getAttribute('data-count'));
+            const suffix = counter.getAttribute('data-suffix') || '';
+            const decimals = parseInt(counter.getAttribute('data-decimals')) || 0;
+            const duration = 1200;
+            const start = performance.now();
+
+            function update(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = eased * target;
+
+                if (decimals > 0) {
+                    counter.textContent = current.toFixed(decimals) + suffix;
+                } else {
+                    counter.textContent = Math.floor(current).toLocaleString() + suffix;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
+        });
+    }
+
+    /* Run counters when elements are visible */
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.disconnect();
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const statsRow = document.querySelector('.stats-row');
+        if (statsRow) observer.observe(statsRow);
+    } else {
+        animateCounters();
+    }
+
+
+    /* ----------------------------------------------------------
+       Chatbot Toggle
+       ---------------------------------------------------------- */
+    const chatbotTrigger = document.getElementById('chatbotTrigger');
+    const chatbotWindow = document.getElementById('chatbotWindow');
+    const chatbotClose = document.getElementById('chatbotClose');
+    const chatbotInput = document.getElementById('chatbotInput');
+
+    if (chatbotTrigger && chatbotWindow) {
+        chatbotTrigger.addEventListener('click', function() {
+            chatbotWindow.classList.toggle('open');
+            if (chatbotWindow.classList.contains('open')) {
+                chatbotInput.focus();
+            }
+        });
+    }
+    if (chatbotClose) {
+        chatbotClose.addEventListener('click', function() {
+            chatbotWindow.classList.remove('open');
+        });
+    }
+
+
+    /* ----------------------------------------------------------
+       Customer Table Search (basic filter)
+       Wire to real data: replace with API-driven search.
+       ---------------------------------------------------------- */
+    const customerSearch = document.getElementById('customerSearch');
+    const customerTable = document.getElementById('customerTable');
+
+    if (customerSearch && customerTable) {
+        customerSearch.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const rows = customerTable.querySelectorAll('tbody tr');
+            rows.forEach(function(row) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    }
+
+
+    /* ----------------------------------------------------------
+       Lead Card Hover Lift (add subtle scale on drag-ready feel)
+       ---------------------------------------------------------- */
+    document.querySelectorAll('.lead-card').forEach(function(card) {
+        card.addEventListener('mouseenter', function() {
+            this.style.cursor = 'grab';
+        });
+    });
+
+})();
+</script>
+
+</body>
+</html>
